@@ -3,6 +3,10 @@ import Recipe from "./scripts/recipe.js";
 import { ele, notify, renderLoader, renderResults, } from "./scripts/ui.js";
 import { categories } from "./scripts/constant.js";
 
+// uuid id kütüphanesinden id oluşturma methodu import etme
+import { v4 } from "https://jspm.dev//uuid";
+
+
 
 // classın örneğini oluşturma
 const search = new Search();
@@ -27,10 +31,18 @@ ele.form.addEventListener("submit", (e) => {
 })
 
 // sayfa yüklenme olayını izle
-window.addEventListener("DOMContentLoaded", controlUrl);
+window.addEventListener("DOMContentLoaded", () => {
+    controlUrl();
+    renderBasketItems();
+});
 
 // url deki id nin değişme olayını izle
 window.addEventListener("hashchange", controlUrl);
+
+// tarif alanındaki tıklanma olaylarını izle
+ele.recipe_area.addEventListener("click", handleClick)
+
+
 
 //! fonksiyonlar
 // arama sonuçlarını alıp ekrana basar
@@ -81,7 +93,78 @@ async function controlUrl() {
         await recipe.getRecipe(id);
 
         // tarif bilgilerini ekrana bas
-        console.log(recipe.info);
+        recipe.renderRecipe(recipe.info);
     }
 
 }
+
+//! sepet alanı
+let basket = JSON.parse(localStorage.getItem("basket")) || [];
+
+// tarif alanındaki tıklanmalarda çalışır
+function handleClick(e) {
+    if (e.target.id === "add-to-cart") {
+        // bütün malzemeleri sepete ekle
+        recipe.info.ingredients.forEach((title) => {
+            // her bir tarif için yeni bir obje oluştur ve id ekle
+            const newItem = {
+                id: v4(),
+                title,
+            }
+            // oluşturulan id'li tarifi sepete ekle
+            basket.push(newItem);
+        })
+
+        // local'i güncelle
+        localStorage.setItem("basket", JSON.stringify(basket));
+
+        // sepet arayüzünü güncelle
+        renderBasketItems();
+    }
+}
+
+// tarif verilerini ekrana basar
+function renderBasketItems() {
+    ele.basket_list.innerHTML = basket.map((i) => `
+    <li data-id="${i.id}">
+     <i id="delete-item" class="bi bi-x"></i>
+     <span>${i.title}</span>
+    </li>
+    `).join(" ");
+}
+
+// silme butonuna tıklanma olayı
+ele.clear_btn.addEventListener("click", () => {
+    const res = confirm("Do you want to clean the cart?")
+
+    if (res) {
+        // sepet dizisini sıfırla
+        basket = [];
+
+        // local'i temizle
+        localStorage.removeItem("basket");
+
+        // arayüzü temizle
+        ele.basket_list.innerHTML = "";
+    }
+})
+
+// tek tek silme
+ele.basket_list.addEventListener("click", (e) => {
+    if (e.target.id == "delete-item") {
+        // tıklanılan elemanın id sine eriş
+        const parent = e.target.parentElement;
+        const id = parent.dataset.id;
+        console.log(parent, id);
+
+        // id sine göre diziden kaldırma
+        basket = basket.filter((i) => i.id !== id)
+
+        // local'e güncel diziyi aktar
+
+        localStorage.setItem("basket", JSON.stringify(basket))
+
+        // arayüzden ilgili elemanı kaldır
+        parent.remove();
+    }
+})

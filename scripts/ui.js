@@ -1,27 +1,30 @@
 export const ele = {
-    form: document.querySelector("form"),
-    result_list: document.querySelector("#results"),
-    recipe_area: document.querySelector("#recipe"),
+  form: document.querySelector("form"),
+  result_list: document.querySelector("#results"),
+  recipe_area: document.querySelector("#recipe"),
+  like_list: document.querySelector(".dropdown"),
+  basket_list: document.querySelector("#basket"),
+  clear_btn: document.querySelector("#clear"),
 }
 
 // bildirim gönderir
 export const notify = (text) => {
-    Toastify({
-        text,
-        duration: 3000,
-        close: true,
-        gravity: "bottom",
-        position: "right",
-        stopOnFocus: true,
-        style: {
-            background: "linear-gradient(to right, #fbda61, #ff5acd)",
-        },
-    }).showToast();
+  Toastify({
+    text,
+    duration: 3000,
+    close: true,
+    gravity: "bottom",
+    position: "right",
+    stopOnFocus: true,
+    style: {
+      background: "linear-gradient(to right, #fbda61, #ff5acd)",
+    },
+  }).showToast();
 }
 
 // yükleniyor gifini ekrana basar
 export const renderLoader = (outlet) => {
-    outlet.innerHTML = `
+  outlet.innerHTML = `
     <div class="wrapper">
      <div class="three-body">
       <div class="three-body__dot"></div>
@@ -34,8 +37,8 @@ export const renderLoader = (outlet) => {
 
 // arama sonuçlarını ekrana basar
 export const renderResults = (results) => {
-    // tarif dizisi içerisindeki her bir tarif için bir link oluştur v result list içerisine bu htmle leri gönder.
-    ele.result_list.innerHTML = results.map((recipe) => `
+  // tarif dizisi içerisindeki her bir tarif için bir link oluştur v result list içerisine bu htmle leri gönder.
+  ele.result_list.innerHTML = results.map((recipe) => `
     <a href="#${recipe.recipe_id}">
           <div class="img-wrapper">
             <img
